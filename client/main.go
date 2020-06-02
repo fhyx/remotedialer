@@ -5,8 +5,9 @@ import (
 	"flag"
 	"net/http"
 
-	"github.com/rancher/remotedialer"
 	"github.com/sirupsen/logrus"
+
+	"fhyx.online/remotedialer"
 )
 
 var (

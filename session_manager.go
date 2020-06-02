@@ -8,7 +8,8 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/rancher/remotedialer/metrics"
+
+	"fhyx.online/remotedialer/metrics"
 )
 
 type sessionListener interface {

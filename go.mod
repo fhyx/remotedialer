@@ -1,4 +1,4 @@
-module github.com/rancher/remotedialer
+module fhyx.online/remotedialer
 
 go 1.12
 
