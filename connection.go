@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rancher/remotedialer/metrics"
+	"fhyx.online/remotedialer/metrics"
 )
 
 var (

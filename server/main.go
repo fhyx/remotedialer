@@ -12,8 +12,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rancher/remotedialer"
 	"github.com/sirupsen/logrus"
+
+	"fhyx.online/remotedialer"
 )
 
 var (
