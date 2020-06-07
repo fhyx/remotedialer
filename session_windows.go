@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 )
 
 func (s *Session) startPingsWhileWindows(rootCtx context.Context) {
@@ -26,9 +25,9 @@ func (s *Session) startPingsWhileWindows(rootCtx context.Context) {
 			case <-t.C:
 				s.conn.Lock()
 				if err := s.conn.conn.WriteControl(websocket.PingMessage, []byte(""), time.Now().Add(time.Second)); err != nil {
-					logrus.WithError(err).Error("Error writing ping")
+					GetLogger().Errorf("Error writing ping, %s", err)
 				}
-				logrus.Debug("Wrote ping")
+				GetLogger().Debugf("Wrote ping")
 				s.conn.Unlock()
 			}
 		}

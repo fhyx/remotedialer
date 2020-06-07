@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 )
 
 // ConnectAuthorizer custom for authorization
@@ -17,7 +16,7 @@ type ConnectAuthorizer func(proto, address string) bool
 func ClientConnect(ctx context.Context, wsURL string, headers http.Header, dialer *websocket.Dialer,
 	auth ConnectAuthorizer, onConnect func(context.Context) error) error {
 	if err := ConnectToProxy(ctx, wsURL, headers, auth, dialer, onConnect); err != nil {
-		logrus.WithError(err).Error("Remotedialer proxy error")
+		GetLogger().Errorf("Remotedialer proxy error, %s", err)
 		time.Sleep(time.Duration(5) * time.Second)
 		return err
 	}
@@ -26,7 +25,7 @@ func ClientConnect(ctx context.Context, wsURL string, headers http.Header, diale
 
 // ConnectToProxy connect to websocket server
 func ConnectToProxy(rootCtx context.Context, proxyURL string, headers http.Header, auth ConnectAuthorizer, dialer *websocket.Dialer, onConnect func(context.Context) error) error {
-	logrus.WithField("url", proxyURL).Info("Connecting to proxy")
+	GetLogger().Infof("Connecting to proxy, url: %s", proxyURL)
 
 	if dialer == nil {
 		dialer = &websocket.Dialer{Proxy: http.ProxyFromEnvironment, HandshakeTimeout: HandshakeTimeOut}
@@ -34,13 +33,13 @@ func ConnectToProxy(rootCtx context.Context, proxyURL string, headers http.Heade
 	ws, resp, err := dialer.Dial(proxyURL, headers)
 	if err != nil {
 		if resp == nil {
-			logrus.WithError(err).Errorf("Failed to connect to proxy. Empty dialer response")
+			GetLogger().Errorf("Failed to connect to proxy. Empty dialer response, err %s", err)
 		} else {
 			rb, err2 := ioutil.ReadAll(resp.Body)
 			if err2 != nil {
-				logrus.WithError(err).Errorf("Failed to connect to proxy. Response status: %v - %v. Couldn't read response body (err: %v)", resp.StatusCode, resp.Status, err2)
+				GetLogger().Errorf("Failed to connect to proxy, %s. Response status: %v - %v. Couldn't read response body (err: %v)", err, resp.StatusCode, resp.Status, err2)
 			} else {
-				logrus.WithError(err).Errorf("Failed to connect to proxy. Response status: %v - %v. Response body: %s", resp.StatusCode, resp.Status, rb)
+				GetLogger().Errorf("Failed to connect to proxy, %s. Response status: %v - %v. Response body: %s", err, resp.StatusCode, resp.Status, rb)
 			}
 		}
 		return err
@@ -70,7 +69,7 @@ func ConnectToProxy(rootCtx context.Context, proxyURL string, headers http.Heade
 
 	select {
 	case <-ctx.Done():
-		logrus.WithField("url", proxyURL).WithField("err", ctx.Err()).Info("Proxy done")
+		GetLogger().Infof("Proxy done, url: %s, err %s", proxyURL, ctx.Err())
 		return nil
 	case err := <-result:
 		return err
