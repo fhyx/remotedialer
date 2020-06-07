@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 
 	"fhyx.online/remotedialer"
 )
@@ -40,20 +39,20 @@ func Client(server *remotedialer.Server, rw http.ResponseWriter, req *http.Reque
 	client := getClient(server, clientKey, timeout)
 
 	id := atomic.AddInt64(&counter, 1)
-	logrus.Infof("[%03d] REQ t=%s %s", id, timeout, url)
+	GetLogger().Infof("[%03d] REQ t=%s %s", id, timeout, url)
 
 	resp, err := client.Get(url)
 	if err != nil {
-		logrus.Errorf("[%03d] REQ ERR t=%s %s: %v", id, timeout, url, err)
+		GetLogger().Errorf("[%03d] REQ ERR t=%s %s: %v", id, timeout, url, err)
 		remotedialer.DefaultErrorWriter(rw, req, 500, err)
 		return
 	}
 	defer resp.Body.Close()
 
-	logrus.Infof("[%03d] REQ OK t=%s %s", id, timeout, url)
+	GetLogger().Infof("[%03d] REQ OK t=%s %s", id, timeout, url)
 	rw.WriteHeader(resp.StatusCode)
 	io.Copy(rw, resp.Body)
-	logrus.Infof("[%03d] REQ DONE t=%s %s", id, timeout, url)
+	GetLogger().Infof("[%03d] REQ DONE t=%s %s", id, timeout, url)
 }
 
 func getClient(server *remotedialer.Server, clientKey, timeout string) *http.Client {
@@ -99,7 +98,6 @@ func main() {
 	flag.Parse()
 
 	if debug {
-		logrus.SetLevel(logrus.DebugLevel)
 		remotedialer.PrintTunnelData = true
 	}
 
@@ -123,4 +121,8 @@ func main() {
 
 	fmt.Println("Listening on ", addr)
 	http.ListenAndServe(addr, router)
+}
+
+func GetLogger() remotedialer.Logger {
+	return remotedialer.GetLogger()
 }

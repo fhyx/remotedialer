@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -46,15 +45,17 @@ func New(auth Authorizer, errorWriter ErrorWriter) *Server {
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	clientKey, authed, peer, err := s.auth(req)
 	if err != nil {
+		GetLogger().Infof("auth fail, ERR %s", err)
 		s.errorWriter(rw, req, 400, err)
 		return
 	}
 	if !authed {
+		GetLogger().Infof("auth fail, ck %q", clientKey)
 		s.errorWriter(rw, req, 401, errFailedAuth)
 		return
 	}
 
-	logrus.Infof("Handling backend connection request [%s]", clientKey)
+	GetLogger().Infof("Handling backend connection request [%s]", clientKey)
 
 	upgrader := websocket.Upgrader{
 		HandshakeTimeout: 5 * time.Second,
@@ -75,7 +76,7 @@ func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	code, err := session.Serve(req.Context())
 	if err != nil {
 		// Hijacked so we can't write to the client
-		logrus.Infof("error in remotedialer server [%d]: %v", code, err)
+		GetLogger().Infof("error in remotedialer server [%d]: %v", code, err)
 	}
 }
 
