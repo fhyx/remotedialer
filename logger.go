@@ -41,7 +41,7 @@ type Logger interface {
 type logImpl struct{}
 
 func (z *logImpl) Debugf(template string, args ...interface{}) {
-	syslog.Output(2, fmt.Sprintf(template, args...))
+	// syslog.Output(2, fmt.Sprintf(template, args...))
 }
 
 func (z *logImpl) Infof(template string, args ...interface{}) {
